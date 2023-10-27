@@ -2,14 +2,28 @@ import React, { useState } from 'react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import {
+ useToast
+} from '@chakra-ui/react';
 
 function Login() {
   const [userID, setUserID] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const toast = useToast();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!userID || !password) {
+      toast({
+        title: 'User ID and Password are required',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
     try {
       const response = await axios.post('http://localhost:5000/login', {
         userID,
@@ -21,9 +35,23 @@ function Login() {
         Cookies.set('username', response.data.username, { expires: 3 });
         Cookies.set('userID', response.data.userID, { expires: 3 });
         window.localStorage.setItem('token', response.data.accessToken);
-        navigate('/index');
+        toast({
+          title: "Logging in",
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+        setTimeout(() => {
+          navigate('/index');
+        }, 3000)
       }
     } catch (err) {
+      toast({
+        title: err.response.data?.message,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
       console.error(err);
     }
   };
@@ -36,8 +64,8 @@ function Login() {
       width: '100%',
       height: '100vh',
       display: 'flex',
-      alignItems: 'flex-start', // Align form to the top
-      justifyContent: 'flex-start', // Align form to the left
+      alignItems: 'flex-start', 
+      justifyContent: 'flex-start', 
       background: '#f0f0f0',
       padding: '20px',
       boxSizing: 'border-box',
@@ -57,6 +85,7 @@ function Login() {
             value={userID}
             onChange={(e) => setUserID(e.target.value)}
             style={{ width: '100%', padding: '10px', border: '1px solid' }}
+            required
           />
         </div>
         <div style={{ marginBottom: '20px' }}>
@@ -66,6 +95,7 @@ function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             style={{ width: '100%', padding: '10px', border: '1px solid' }}
+            required
           />
         </div>
         <button
