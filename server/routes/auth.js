@@ -9,23 +9,19 @@ const Register = async (req, res) => {
     const { userID, password } = req.body;
   
     try {
-      // Check if the username or email already exists in the database
       const existingUser = await User.findOne({
         $or: [{ userID: userID }],
       });
   
       if (existingUser) {
-        // Either username or email is already taken
         return res.status(400).json({ message: 'UserID is already taken.' });
       }
   
-      // Create a new user
       const newUser = new User({
         userID: userID,
         password: CryptoJs.AES.encrypt(password, process.env.PASS_SEC).toString(),
       });
   
-      // Save the new user to the database
       const savedUser = await newUser.save();
       res.status(201).json(savedUser);
     } catch (err) {
@@ -62,7 +58,6 @@ const Login = async (req, res) => {
           
     } catch(err) {
         console.log(err);
-        // Handle the error appropriately (e.g., send an error response)
         return res.status(500).json({ message: "Internal Server Error" });
     }
 };

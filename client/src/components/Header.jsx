@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, Image, SimpleGrid, Text } from "@chakra-ui/react";
+import { Box, Flex, Heading, Image, SimpleGrid, Text, useToast } from "@chakra-ui/react";
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CF from "../assets/CF.png"
@@ -7,11 +7,21 @@ import Cookies from 'js-cookie';
 function Header() {
 
   const navigate = useNavigate();
+  const toast = useToast();
   const logout = () => {
     Cookies.remove('token');
     Cookies.remove('userID');
     Cookies.remove('username');
-    navigate("/", { replace : true });
+    toast({
+      title: "Logging Out",
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    });
+
+    setTimeout(() => {
+      navigate("/", { replace : true });
+    }, 3000)
   };
   return (
     <Box>
